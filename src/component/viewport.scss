@@ -1,0 +1,11 @@
+.viewport {
+  width: calc(100% - 40px);
+  height: calc(100% - 40px);
+  background: var(--Viewport-background);
+  float: left;
+  overflow: scroll;
+
+  .canvas-wrapper {
+    position: relative;
+  }
+}
