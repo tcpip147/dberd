@@ -1,8 +1,6 @@
 .viewport {
-  width: calc(100% - 40px);
-  height: calc(100% - 40px);
-  background: var(--Viewport-background);
-  float: left;
+  background: var(--viewport-background);
+  float: right;
   overflow: scroll;
 
   .canvas-wrapper {

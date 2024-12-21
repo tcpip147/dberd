@@ -29,8 +29,8 @@ module.exports = (env, argv) => {
           exclude: /node_modules/,
         },
         {
-          test: /\.(svg)$/,
-          use: 'file-loader',
+          test: /\.svg$/,
+          use: 'svg-inline-loader',
         },
         {
           test: /\.s?css$/,

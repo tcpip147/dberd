@@ -1,6 +1,22 @@
 .sidebar {
-  width: 40px;
-  height: calc(100% - 40px);
-  background: var(--SideBar-background);
+  background: var(--sidebar-background);
   float: left;
+
+  .button {
+    padding: 10px 5px;
+    svg {
+      cursor: pointer;
+      path {
+        stroke: var(--sidebar-inactive-button);
+      }
+    }
+
+    &.on {
+      svg {
+        path {
+          stroke: var(--sidebar-active-button);
+        }
+      }
+    }
+  }
 }

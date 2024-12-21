@@ -1,0 +1,13 @@
+.sidebar-window {
+  position: absolute;
+  background: var(--sidebar-window-background);
+
+  .sidebar-resizer {
+    position: absolute;
+    right: -2px;
+    width: 4px;
+    height: 100%;
+    background: var(--sidebar-resizer-background);
+    transition: background-color 300ms linear;
+  }
+}
