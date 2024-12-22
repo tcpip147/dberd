@@ -3,7 +3,6 @@ import '@/component/sidebar.scss';
 import { SideBarWindow } from '@/component/sidebar_window';
 import fileSvg from '@/image/file.svg';
 import searchSvg from '@/image/search.svg';
-import { PropertyChangeListener, PropertyEventType } from '@/index';
 
 interface Button {
   name: string;
@@ -14,7 +13,7 @@ class SideBarModule {
   element: HTMLDivElement;
   width: number = 40;
   children: Button[] = [];
-  selectedWindow: string = 'file_explorer';
+  selectedWindow: string = '';
 
   constructor() {
     this.element = document.createElement('div');
@@ -24,35 +23,50 @@ class SideBarModule {
   }
 
   init() {
+    this.toggleItem(this.children[0].name);
     this.element.style.width = this.width + 'px';
     this.element.style.height = 'calc(100% - ' + MenuBar.height + 'px)';
-
-    PropertyChangeListener.addListener(PropertyEventType.SIDEBAR_WINDOW_VISIBLE, (e: any) => {
-      if (!e.newValue) {
-        this.element.querySelectorAll('.button').forEach((el) => el.classList.remove('on'));
-      }
-    });
   }
 
   addButton(button: Button) {
-    const wrapper = document.createElement('div');
-    wrapper.className = 'button ' + button.name;
-    wrapper.innerHTML = button.inline;
-    const svg = wrapper.querySelector('svg')!;
+    const div = document.createElement('div');
+    div.className = 'button ' + button.name;
+    div.innerHTML = button.inline;
+    const svg = div.querySelector('svg')!;
     svg.addEventListener('click', (e) => {
-      if (wrapper.classList.contains('on')) {
-        wrapper.classList.remove('on');
-        PropertyChangeListener.fireChanged(PropertyEventType.SIDEBAR_WINDOW_VISIBLE, { oldValue: SideBarWindow.visible, newValue: false });
-      } else {
-        this.element.querySelectorAll('.button').forEach((el) => el.classList.remove('on'));
-        wrapper.classList.add('on');
-        PropertyChangeListener.fireChanged(PropertyEventType.SIDEBAR_WINDOW_VISIBLE, { oldValue: SideBarWindow.visible, newValue: true });
-        PropertyChangeListener.fireChanged(PropertyEventType.SIDEBAR_WINDOW_WIDTH, { oldValue: SideBarWindow.width, newValue: 300 });
-        PropertyChangeListener.fireChanged(PropertyEventType.SIDEBAR_SELECTED_WINDOW, { oldValue: SideBar.selectedWindow, newValue: button.name });
-      }
+      this.toggleItem(button.name);
     });
-    this.element.append(wrapper);
+    this.element.append(div);
     this.children.push(button);
+  }
+
+  toggleItem(name: string) {
+    const div: HTMLDivElement = this.element.querySelector('.' + name)!;
+    this.selectedWindow = name;
+    if (div.classList.contains('on')) {
+      div.classList.remove('on');
+      SideBarWindow.setWidth(0);
+    } else {
+      const alreadySelected = this.element.querySelector('.button.on');
+      if (alreadySelected != null) {
+        alreadySelected.classList.remove('on');
+      } else {
+        SideBarWindow.setWidth(300);
+      }
+      div.classList.add('on');
+      SideBarWindow.setContent(this.selectedWindow);
+    }
+  }
+
+  deselectAll() {
+    this.element.querySelector('.button.on')?.classList.remove('on');
+  }
+
+  restoreSelection() {
+    const button = this.element.querySelector('.' + this.selectedWindow);
+    if (!button!.classList.contains('on')) {
+      button!.classList.add('on');
+    }
   }
 }
 

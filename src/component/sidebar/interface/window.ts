@@ -1,1 +1,3 @@
-export interface Window {}
+export interface Window {
+  getElement(): HTMLDivElement;
+}

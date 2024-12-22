@@ -1,6 +1,6 @@
 .viewport {
   background: var(--viewport-background);
-  float: right;
+  position: absolute;
   overflow: scroll;
 
   .canvas-wrapper {

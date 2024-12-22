@@ -4,38 +4,48 @@ import { FileExplorer } from '@/component/sidebar/file_explorer';
 import { Window } from '@/component/sidebar/interface/window';
 import { SearchExplorer } from '@/component/sidebar/search_explorer';
 import '@/component/sidebar_window.scss';
-import { GlobalProperty, PropertyChangeListener, PropertyEventType } from '@/index';
+import { Viewport } from '@/component/viewport';
+import { GlobalProperty } from '@/index';
+import { debounce } from '@/util/debounce';
 
 class SideBarWindowModule {
   element: HTMLDivElement;
-  width: number = 300;
-  visible: boolean = true;
+  width: number = 0;
   children: { [key: string]: Window } = {};
+  visibleWindow: Window | null = null;
 
   constructor() {
     this.element = document.createElement('div');
     this.element.className = 'sidebar-window';
     this.element.append(SideBarResizer.element);
-    this.children['file_explorer'] = FileExplorer;
-    this.children['search_explorer'] = SearchExplorer;
+    this.addChild('file_explorer', FileExplorer);
+    this.addChild('search_explorer', SearchExplorer);
   }
 
   init() {
+    this.setWidth(300);
     this.element.style.left = SideBar.width + 'px';
-    this.element.style.width = this.width + 'px';
     this.element.style.height = 'calc(100% - ' + MenuBar.height + 'px)';
-
-    PropertyChangeListener.addListener(PropertyEventType.SIDEBAR_WINDOW_VISIBLE, (e: any) => {
-      this.visible = e.newValue;
-      this.element.style.display = this.visible ? 'block' : 'none';
-    });
-
-    PropertyChangeListener.addListener(PropertyEventType.SIDEBAR_WINDOW_WIDTH, (e: any) => {
-      this.width = e.newValue;
-      this.element.style.width = this.width + 'px';
-    });
-
     SideBarResizer.init();
+  }
+
+  setWidth(width: number) {
+    this.width = width;
+    this.element.style.width = width + 'px';
+    Viewport.setWidth(window.innerWidth - width - SideBar.width);
+  }
+
+  setContent(name: string) {
+    if (this.visibleWindow != null) {
+      this.visibleWindow.getElement().style.display = 'none';
+    }
+    this.children[name].getElement().style.display = '';
+    this.visibleWindow = this.children[name];
+  }
+
+  addChild(name: string, win: Window) {
+    this.children[name] = win;
+    this.element.append(win.getElement());
   }
 }
 
@@ -51,7 +61,8 @@ class SideBarResizerModule {
     this.element.style.background = 'transparent';
 
     const holder = {
-      isResizeMode: false,
+      isHover: false,
+      isDragging: false,
       startX: 0,
       startWidth: 0,
     };
@@ -61,38 +72,50 @@ class SideBarResizerModule {
         if (e.target == this.element) {
           holder.startX = e.clientX;
           holder.startWidth = SideBarWindow.width;
-          holder.isResizeMode = true;
+          holder.isDragging = true;
+          this.element.style.background = '';
         }
       }
     });
 
     window.addEventListener('mousemove', (e) => {
       if (GlobalProperty.isAvailableResizeToSideBar) {
-        if (e.target == this.element || holder.isResizeMode) {
-          this.element.style.background = '';
-          document.body.style.cursor = 'e-resize';
+        if (e.target == this.element) {
+          if (!holder.isHover) {
+            holder.isHover = true;
+            debounce(() => {
+              if (holder.isHover) {
+                this.element.style.background = '';
+              }
+            }, 500);
+          }
         } else {
-          this.element.style.background = 'transparent';
-          document.body.style.cursor = 'default';
+          holder.isHover = false;
         }
 
-        if (holder.isResizeMode) {
+        if (holder.isHover || holder.isDragging) {
+          document.body.style.cursor = 'e-resize';
+        } else {
+          document.body.style.cursor = 'default';
+          this.element.style.background = 'transparent';
+        }
+
+        if (holder.isDragging) {
           let newWidth = holder.startWidth + e.clientX - holder.startX;
           if (newWidth < 50) {
-            newWidth = 50;
-            holder.isResizeMode = false;
-            PropertyChangeListener.fireChanged(PropertyEventType.SIDEBAR_WINDOW_WIDTH, { oldValue: SideBarWindow.width, newValue: newWidth });
-            PropertyChangeListener.fireChanged(PropertyEventType.SIDEBAR_WINDOW_VISIBLE, { oldValue: true, newValue: false });
+            newWidth = 0;
+            SideBar.deselectAll();
           } else {
-            PropertyChangeListener.fireChanged(PropertyEventType.SIDEBAR_WINDOW_WIDTH, { oldValue: SideBarWindow.width, newValue: newWidth });
+            SideBar.restoreSelection();
           }
+          SideBarWindow.setWidth(newWidth);
         }
       }
     });
 
     window.addEventListener('mouseup', (e) => {
       if (GlobalProperty.isAvailableResizeToSideBar) {
-        holder.isResizeMode = false;
+        holder.isDragging = false;
       }
     });
   }

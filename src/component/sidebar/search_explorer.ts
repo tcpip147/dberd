@@ -9,6 +9,10 @@ class SearchExplorerModule implements Window {
   }
 
   init() {}
+
+  getElement(): HTMLDivElement {
+    return this.element;
+  }
 }
 
 export const SearchExplorer = new SearchExplorerModule();

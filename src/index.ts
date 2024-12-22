@@ -21,27 +21,3 @@ window.onload = function () {
 export const GlobalProperty = {
   isAvailableResizeToSideBar: true,
 };
-
-const propertyChangeListeners: { [key: number]: Function[] } = {};
-
-export const PropertyChangeListener = {
-  addListener: (eventType: number, listener: Function) => {
-    if (propertyChangeListeners[eventType] == null) {
-      propertyChangeListeners[eventType] = [];
-    }
-    propertyChangeListeners[eventType].push(listener);
-  },
-  fireChanged: (eventType: number, e: any) => {
-    if (propertyChangeListeners[eventType] != null) {
-      propertyChangeListeners[eventType].forEach((listener) => {
-        listener(e);
-      });
-    }
-  },
-};
-
-export const PropertyEventType = {
-  SIDEBAR_WINDOW_WIDTH: 0,
-  SIDEBAR_WINDOW_VISIBLE: 1,
-  SIDEBAR_SELECTED_WINDOW: 2,
-};
