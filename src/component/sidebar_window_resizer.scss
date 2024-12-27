@@ -1,0 +1,8 @@
+.sidebar-window-resizer {
+  z-index: 10;
+  position: absolute;
+  right: -2px;
+  width: 4px;
+  height: 100%;
+  background: var(--sidebar-window-resizer-background);
+}

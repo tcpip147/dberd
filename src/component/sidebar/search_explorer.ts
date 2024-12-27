@@ -1,18 +1,23 @@
-import { Window } from '@/component/sidebar/interface/window';
+let element: HTMLDivElement;
+const name = 'search_explorer';
 
-class SearchExplorerModule implements Window {
-  element: HTMLDivElement;
+export const SearchExplorer = {
+  createElement: () => {
+    element = document.createElement('div');
+    element.className = 'explorer ' + name;
 
-  constructor() {
-    this.element = document.createElement('div');
-    this.element.className = 'search-explorer';
-  }
-
-  init() {}
-
-  getElement(): HTMLDivElement {
-    return this.element;
-  }
-}
-
-export const SearchExplorer = new SearchExplorerModule();
+    element.innerHTML = `
+      <div class='toolbar'>
+        <div class='title'>SEARCH</div>
+      </div>
+      <div class='content'></div>
+    `;
+    return element;
+  },
+  getElement: () => {
+    return element;
+  },
+  getName: () => {
+    return name;
+  },
+};

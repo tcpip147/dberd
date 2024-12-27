@@ -3,19 +3,21 @@
   float: left;
 
   .button {
-    padding: 10px 5px;
-    svg {
+    text-align: center;
+    padding-top: 15px;
+    padding-bottom: 5px;
+    user-select: none;
+
+    span {
       cursor: pointer;
-      path {
-        stroke: var(--sidebar-inactive-button);
-      }
+      color: var(--sidebar-inactive-button);
+      font-family: 'gicon';
+      font-size: 24px;
     }
 
     &.on {
-      svg {
-        path {
-          stroke: var(--sidebar-active-button);
-        }
+      span {
+        color: var(--sidebar-active-button);
       }
     }
   }

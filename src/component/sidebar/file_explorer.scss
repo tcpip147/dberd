@@ -1,0 +1,75 @@
+.file_explorer {
+  user-select: none;
+
+  .file.directory {
+    & > .title {
+      .icon::before {
+        content: '\e903';
+      }
+    }
+  }
+
+  .file.directory.open {
+    & > .title {
+      .icon::before {
+        content: '\e902';
+      }
+    }
+  }
+
+  .file.dberd {
+    & > .title {
+      .icon::before {
+        color: rgb(150, 150, 204);
+        content: '\e905';
+        font-size: 12px;
+        position: relative;
+        top: -2px;
+      }
+    }
+  }
+
+  .file {
+    cursor: pointer;
+    white-space: nowrap;
+
+    span {
+      vertical-align: top;
+    }
+
+    & > .title:hover {
+      background: var(--file_explorer-title-hover-background);
+    }
+
+    &.selected > .title {
+      background: var(--file_explorer-title-selected-background);
+    }
+
+    & > .title {
+      border: 1px solid transparent;
+      padding: 2px;
+
+      .icon {
+        display: inline-block;
+        font-family: 'gicon';
+        font-size: 10px;
+        padding: 4px 2px 4px 4px;
+        width: 16px;
+        height: 16px;
+        box-sizing: border-box;
+      }
+    }
+
+    &.on > .title {
+      border: 1px solid #5f6acf;
+    }
+
+    & > .file {
+      display: none;
+    }
+
+    &.open > .file {
+      display: block;
+    }
+  }
+}

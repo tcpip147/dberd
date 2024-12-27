@@ -30,11 +30,15 @@ module.exports = (env, argv) => {
         },
         {
           test: /\.svg$/,
-          use: 'svg-inline-loader',
+          use: 'file-loader',
         },
         {
           test: /\.s?css$/,
           use: ['style-loader', 'css-loader', 'sass-loader'],
+        },
+        {
+          test: /\.ttf$/,
+          type: 'asset/resource',
         },
       ],
     },
