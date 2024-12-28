@@ -72,6 +72,9 @@ export const FileExplorer = {
     const contentEl = element.querySelector('.content')!;
     contentEl.innerHTML = renderFiles(fileDescriptions, 0);
   },
+  getFileDescriptions: () => {
+    return fileDescriptions;
+  },
 };
 
 function parseFiles(parent: FileDescription[], files: File[]): void {

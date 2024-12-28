@@ -15,7 +15,6 @@ window.onload = function () {
   document.body.append(Viewport.createElement());
 
   registSideBarExplorers();
-  SideBar.toggleItem(FileExplorer.getName());
   loadFileList();
 };
 
@@ -64,5 +63,11 @@ function loadFileList() {
       },
     ];
     FileExplorer.loadFileList(files);
+  }, 1);
+
+  // TODO:
+  setTimeout(() => {
+    // SideBar.toggleItem(FileExplorer.getName());
+    Viewport.openTab(FileExplorer.getFileDescriptions()['/ERD Files/Sample.dberd']);
   }, 1);
 }

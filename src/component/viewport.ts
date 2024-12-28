@@ -1,3 +1,4 @@
+import { Diagram } from '@/component/diagram';
 import { MenuBar } from '@/component/menubar';
 import { SideBar } from '@/component/sidebar';
 import { FileDescription } from '@/component/sidebar/file_explorer';
@@ -8,6 +9,7 @@ import { closest } from '@/util/dom-utils';
 let element: HTMLDivElement;
 let headerEl: HTMLDivElement;
 let contentEl: HTMLDivElement;
+const diagrams: { [key: string]: Diagram } = {};
 
 export const Viewport = {
   createElement: () => {
@@ -17,6 +19,7 @@ export const Viewport = {
     element.style.width = window.innerWidth - SideBar.getWidth() - SideBarWindow.getWidth() + 'px';
     element.style.left = SideBar.getWidth() + SideBarWindow.getWidth() + 'px';
 
+    // TODO: If tabs overflow header area...
     headerEl = document.createElement('div');
     headerEl.className = 'header';
     element.append(headerEl);
@@ -26,19 +29,27 @@ export const Viewport = {
     element.append(contentEl);
 
     headerEl.addEventListener('mouseup', (e) => {
-      const tabEl = closest(e.target as HTMLElement, 'tab')!;
-      if (tabEl != null && (e.target as HTMLDivElement).classList.contains('close')) {
-        tabEl.remove();
-        if (tabEl.classList.contains('on')) {
-          const lastTabEl = headerEl.querySelector('.tab:last-child');
-          if (lastTabEl != null) {
-            lastTabEl.classList.add('on');
+      const headerTabEl = closest(e.target as HTMLElement, 'tab')!;
+      if (headerTabEl != null && (e.target as HTMLDivElement).classList.contains('close')) {
+        headerTabEl.remove();
+        const contentTabEl: HTMLDivElement | null = contentEl.querySelector(`[data-path='${headerTabEl.dataset.path}']`)!;
+        contentTabEl.remove();
+        delete diagrams[headerTabEl.dataset.path!];        
+        if (headerTabEl.classList.contains('on')) {
+          const lastHeaderTabEl = headerEl.querySelector('.tab:last-child') as HTMLDivElement;
+          if (lastHeaderTabEl != null) {
+            lastHeaderTabEl.classList.add('on');
+            const lastContentTabEl: HTMLDivElement | null = contentEl.querySelector(`[data-path='${lastHeaderTabEl.dataset.path}']`)!;
+            lastContentTabEl.classList.add('on');
           }
         }
-      } else if (tabEl != null) {
+      } else if (headerTabEl != null) {
         headerEl.querySelectorAll('.tab.on').forEach((el) => el.classList.remove('on'));
-        if (!tabEl.classList.contains('on')) {
-          tabEl.classList.add('on');
+        contentEl.querySelectorAll('.tab.on').forEach((el) => el.classList.remove('on'));
+        if (!headerTabEl.classList.contains('on')) {
+          headerTabEl.classList.add('on');
+          const contentTabEl: HTMLDivElement | null = contentEl.querySelector(`[data-path='${headerTabEl.dataset.path}']`)!;
+          contentTabEl.classList.add('on');
         }
       }
     });
@@ -50,22 +61,37 @@ export const Viewport = {
     element.style.left = SideBar.getWidth() + SideBarWindow.getWidth() + 'px';
   },
   openTab: (fileDescription: FileDescription) => {
-    let tabEl: HTMLDivElement | null = headerEl.querySelector(`[data-path='${fileDescription.file.path}']`);
-    if (tabEl == null) {
-      tabEl = document.createElement('div') as HTMLDivElement;
-      tabEl.className = 'tab';
-      tabEl.dataset.path = fileDescription.file.path;
+    let headerTabEl: HTMLDivElement | null = headerEl.querySelector(`[data-path='${fileDescription.file.path}']`);
+    if (headerTabEl == null) {
+      headerTabEl = document.createElement('div') as HTMLDivElement;
+      headerTabEl.className = 'tab';
+      headerTabEl.dataset.path = fileDescription.file.path;
       let html = `
         <span class='icon ${fileDescription.file.type}'></span>
         <div class='title'>${fileDescription.file.filename}</div>
         <div class='close'></div>
       `;
-      tabEl.innerHTML = html;
-      headerEl.append(tabEl);
+      headerTabEl.innerHTML = html;
+      headerEl.append(headerTabEl);
     }
     headerEl.querySelectorAll('.tab.on').forEach((el) => el.classList.remove('on'));
-    if (!tabEl.classList.contains('on')) {
-      tabEl.classList.add('on');
+    if (!headerTabEl.classList.contains('on')) {
+      headerTabEl.classList.add('on');
+    }
+
+    let contentTabEl: HTMLDivElement | null = contentEl.querySelector(`[data-path='${fileDescription.file.path}']`);
+    if (contentTabEl == null) {
+      contentTabEl = document.createElement('div') as HTMLDivElement;
+      contentTabEl.className = 'tab';
+      contentTabEl.dataset.path = fileDescription.file.path;
+      const diagram = new Diagram(fileDescription);
+      diagrams[contentTabEl.dataset.path] = diagram;
+      contentTabEl.append(diagram.createElement());
+      contentEl.append(contentTabEl);
+    }
+    contentEl.querySelectorAll('.tab.on').forEach((el) => el.classList.remove('on'));
+    if (!contentTabEl.classList.contains('on')) {
+      contentTabEl.classList.add('on');
     }
   },
 };
