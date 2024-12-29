@@ -2,10 +2,17 @@ import '@/component/diagram.scss';
 import { Table } from '@/component/diagram/table';
 import { FileDescription } from '@/component/sidebar/file_explorer';
 
+export interface DiagramSetting {
+  tableHeaderOrder: string[];
+}
+
 export class Diagram {
   element!: HTMLDivElement;
   fileDescription: FileDescription;
   tables: Table[] = [];
+  setting: DiagramSetting = {
+    tableHeaderOrder: ['Key', 'ColName', 'ColType', 'Nullable', 'Comment'],
+  };
 
   constructor(fileDescription: FileDescription) {
     this.fileDescription = fileDescription;
